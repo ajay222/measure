@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ferro Fabs Measure — V1</title>
+<style>
+:root{--green:#18794e;--green2:#0f5c3b;--bg:#f4f7f5;--card:#fff;--ink:#17231d;--muted:#66736c;--line:#dce5df;--danger:#b42318}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.app{min-height:100vh}.top{background:var(--green2);color:white;padding:18px 18px 16px}.brand{font-weight:800;font-size:21px}.sub{opacity:.82;font-size:12px;margin-top:2px}.wrap{max-width:760px;margin:auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 18px #15382a0b}.step{font-size:12px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.title{font-size:20px;font-weight:800;margin:0 0 5px}.hint{font-size:13px;color:var(--muted);line-height:1.45}
+.camera{position:relative;border-radius:14px;overflow:hidden;background:#101513;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}.camera video,.camera canvas,.camera img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.camera canvas{touch-action:none}.camera img{display:none}.empty{color:#b8c8bf;text-align:center;padding:20px}.badge{position:absolute;left:10px;top:10px;z-index:5;background:#0009;color:#fff;border-radius:999px;padding:6px 9px;font-size:11px}.cross{position:absolute;width:30px;height:30px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2px #0005;pointer-events:none}.cross:before,.cross:after{content:"";position:absolute;background:#fff}.cross:before{width:42px;height:1px;left:-8px;top:13px}.cross:after{height:42px;width:1px;left:13px;top:-8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-top:10px}.field label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;background:#fff;color:var(--ink)}
+button{border:0;border-radius:11px;padding:12px 14px;font-weight:800;font-size:14px;cursor:pointer}.primary{background:var(--green);color:white}.secondary{background:#e9f1ec;color:var(--green2)}.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}.danger{color:var(--danger)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1;min-width:120px}
+.result{text-align:center;background:#eef7f1;border:1px solid #cfe4d7;border-radius:14px;padding:16px;margin-top:12px}.result .big{font-size:36px;font-weight:900;letter-spacing:-.04em;color:var(--green2)}.small{font-size:12px;color:var(--muted)}
+.list{display:grid;gap:8px;margin-top:10px}.item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:11px;padding:11px 12px}.item strong{display:block}.item span{font-size:12px;color:var(--muted)}.item button{padding:7px 9px;background:transparent;color:var(--danger)}
+.notice{font-size:12px;line-height:1.45;color:#5c675f;background:#fafcfb;border-left:3px solid #9bb7a5;padding:10px 12px;border-radius:6px}.hidden{display:none!important}@media(max-width:480px){.row{grid-template-columns:1fr}.result .big{font-size:31px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="wrap" style="padding:0"><div class="brand">FERRO FABS</div><div class="sub">Site Measurement • V1 Prototype</div></div></header>
+<main class="wrap">
+<section class="card">
+<div class="step">Step 1</div><h1 class="title">Capture the surface</h1><div class="hint">Use the live camera or choose a photo. Keep the reference object and the area you want to measure on the same plane.</div>
+<div class="camera" id="cameraBox"><video id="video" autoplay playsinline muted></video><canvas id="canvas"></canvas><img id="photo"><div class="badge" id="modeBadge">Camera off</div><div class="empty" id="empty">Start camera or choose a photo</div></div>
+<div class="actions"><button class="primary" id="startBtn">Start camera</button><button class="secondary" id="captureBtn" disabled>Capture frame</button><button class="ghost" id="fileBtn">Choose photo</button><input id="fileInput" class="hidden" type="file" accept="image/*"></div>
+<div class="actions"><button class="ghost" id="resetBtn">Reset points</button><button class="secondary" id="undoBtn">Undo last point</button></div>
+</section>
+
+<section class="card">
+<div class="step">Step 2</div><h2 class="title">Calibrate the scale</h2><div class="hint">Tap two points on an object whose real length you know. Then enter its actual size. A measuring tape, tile, shelf board, or other known dimension works.</div>
+<div class="row"><div class="field"><label>Known length</label><input id="knownValue" type="number" min="0.01" step="0.01" value="1"></div><div class="field"><label>Unit</label><select id="knownUnit"><option value="ft">Feet</option><option value="in">Inches</option><option value="cm">Centimetres</option></select></div></div>
+<div class="actions"><button class="primary" id="calibrateBtn">Calibrate from first 2 points</button></div>
+<div class="notice" style="margin-top:10px">For V1, calibration is required before a pixel distance can become a real-world measurement. This avoids pretending a normal photo has built-in scale.</div>
+</section>
+
+<section class="card">
+<div class="step">Step 3</div><h2 class="title">Measure</h2><div class="hint">After calibration, reset the points and tap the start and end of the dimension you want.</div>
+<div class="result"><div class="small">Current measurement</div><div class="big" id="result">—</div><div class="small" id="decimal">Set calibration and tap two measurement points.</div></div>
+<div class="field"><label>Measurement name</label><input id="measureName" placeholder="e.g. Kitchen shelf width"></div>
+<div class="actions"><button class="primary" id="saveBtn">Save measurement</button></div>
+</section>
+
+<section class="card"><div class="step">Saved</div><h2 class="title">Measurements</h2><div id="saved" class="list"><div class="hint">No measurements saved yet.</div></div></section>
+</main>
+</div>
+<script>
+const video=document.getElementById('video'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),photo=document.getElementById('photo');
+const empty=document.getElementById('empty'),badge=document.getElementById('modeBadge');
+let stream=null, mode='none', points=[], calibrationPx=null, calibrationIn=null;
+const $=id=>document.getElementById(id);
+function fitCanvas(){const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*devicePixelRatio));canvas.height=Math.max(1,Math.round(r.height*devicePixelRatio));draw()}
+function setMode(m){mode=m; badge.textContent=m==='camera'?'Live camera':m==='photo'?'Photo':'Camera off';empty.classList.toggle('hidden',m!=='none')}
+async function startCamera(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:960}},audio:false});video.srcObject=stream;video.style.display='block';photo.style.display='none';setMode('camera');$('captureBtn').disabled=false;await video.play();fitCanvas()}catch(e){alert('Camera could not start. Check browser camera permission, or use Choose photo.')}}
+function capture(){if(mode!=='camera')return;const w=video.videoWidth,h=video.videoHeight;canvas.width=w;canvas.height=h;ctx.drawImage(video,0,0,w,h);photo.src=canvas.toDataURL('image/jpeg',.88);photo.style.display='block';video.style.display='none';setMode('photo');draw()}
+function loadPhoto(file){const reader=new FileReader();reader.onload=()=>{photo.onload=()=>{canvas.width=photo.naturalWidth;canvas.height=photo.naturalHeight;video.style.display='none';photo.style.display='block';setMode('photo');draw()};photo.src=reader.result};reader.readAsDataURL(file)}
+function xy(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)}}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);if(mode==='photo'&&photo.complete&&photo.naturalWidth){ctx.drawImage(photo,0,0,canvas.width,canvas.height)};ctx.lineWidth=Math.max(3,canvas.width/400);ctx.strokeStyle='#18c978';ctx.fillStyle='#fff';ctx.font=Math.max(18,canvas.width/32)+'px system-ui';points.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,Math.max(8,canvas.width/70),0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.fillText(i===0?'START':'END',p.x+12,p.y-12)});if(points.length===2){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);ctx.lineTo(points[1].x,points[1].y);ctx.stroke();}}
+canvas.addEventListener('pointerdown',e=>{if(mode==='none')return;if(points.length>=2)points=[];points.push(xy(e));draw();if(points.length===2&&calibrationIn)showMeasurement()});
+function pixelDistance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function calibrate(){if(points.length!==2){alert('First tap two points across a known reference length.');return}let v=parseFloat($('knownValue').value);if(!v||v<=0){alert('Enter a valid known length.');return}let unit=$('knownUnit').value;let inches=unit==='ft'?v*12:unit==='in'?v:v/2.54;calibrationPx=pixelDistance(points[0],points[1]);calibrationIn=inches;alert('Calibration set. Now press Reset points and tap the measurement you want.');}
+function inchesText(total){const rounded=Math.round(total);let ft=Math.floor(rounded/12),inch=rounded%12;if(inch===12){ft++;inch=0}return ft+"' "+inch+'"'}
+function showMeasurement(){if(!calibrationPx||!calibrationIn)return;let px=pixelDistance(points[0],points[1]);let inches=px*(calibrationIn/calibrationPx);$('result').textContent=inchesText(inches);$('decimal').textContent=inches.toFixed(1)+' inches • '+(inches/12).toFixed(2)+' feet';draw()}
+function save(){if(!calibrationPx||points.length!==2){alert('Calibrate first, then select two measurement points.');return}showMeasurement();let px=pixelDistance(points[0],points[1]);let inches=px*(calibrationIn/calibrationPx);let name=$('measureName').value.trim()||'Measurement '+(JSON.parse(localStorage.getItem('ff_measurements')||'[]').length+1);let arr=JSON.parse(localStorage.getItem('ff_measurements')||'[]');arr.push({name,value:inchesText(inches),inches:Number(inches.toFixed(2)),created:new Date().toLocaleString()});localStorage.setItem('ff_measurements',JSON.stringify(arr));$('measureName').value='';renderSaved()}
+function renderSaved(){let arr=JSON.parse(localStorage.getItem('ff_measurements')||'[]');$('saved').innerHTML=arr.length?arr.map((x,i)=>`<div class="item"><div><strong>${esc(x.name)}</strong><span>${esc(x.created)}</span></div><div><strong>${x.value}</strong><button onclick="del(${i})">Delete</button></div></div>`).join(''):'<div class="hint">No measurements saved yet.</div>'}
+function del(i){let a=JSON.parse(localStorage.getItem('ff_measurements')||'[]');a.splice(i,1);localStorage.setItem('ff_measurements',JSON.stringify(a));renderSaved()}
+function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+$('startBtn').onclick=startCamera;$('captureBtn').onclick=capture;$('fileBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>e.target.files[0]&&loadPhoto(e.target.files[0]);$('resetBtn').onclick=()=>{points=[];draw();$('result').textContent='—';$('decimal').textContent='Set calibration and tap two measurement points.'};$('undoBtn').onclick=()=>{points.pop();draw();if(points.length===2&&calibrationIn)showMeasurement()};$('calibrateBtn').onclick=calibrate;$('saveBtn').onclick=save;window.addEventListener('resize',fitCanvas);renderSaved();
+</script>
+</body></html>

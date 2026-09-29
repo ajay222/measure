@@ -29,14 +29,10 @@ button{border:0;border-radius:11px;padding:12px 14px;font-weight:800;font-size:1
 </section>
 
 <section class="card">
-<div class="step">Step 2</div><h2 class="title">Calibrate the scale</h2><div class="hint">Tap two points on an object whose real length you know. Then enter its actual size. A measuring tape, tile, shelf board, or other known dimension works.</div>
-<div class="row"><div class="field"><label>Known length</label><input id="knownValue" type="number" min="0.01" step="0.01" value="1"></div><div class="field"><label>Unit</label><select id="knownUnit"><option value="ft">Feet</option><option value="in">Inches</option><option value="cm">Centimetres</option></select></div></div>
-<div class="actions"><button class="primary" id="calibrateBtn">Calibrate from first 2 points</button></div>
-<div class="notice" style="margin-top:10px">For V1, calibration is required before a pixel distance can become a real-world measurement. This avoids pretending a normal photo has built-in scale.</div>
-</section>
-
-<section class="card">
-<div class="step">Step 3</div><h2 class="title">Measure</h2><div class="hint">After calibration, reset the points and tap the start and end of the dimension you want.</div>
+<div class="step">Step 2</div><h2 class="title">Measure</h2><div class="hint">Set the known reference length below, calibrate using the first two taps, then reset and tap the start and end of the dimension you want.</div>
+<div class="row"><div class="field"><label>Reference length</label><input id="knownValue" type="number" min="0.01" step="0.01" value="1"></div><div class="field"><label>Unit</label><select id="knownUnit"><option value="ft">Feet</option><option value="in">Inches</option><option value="cm">Centimetres</option></select></div></div>
+<div class="actions"><button class="secondary" id="calibrateBtn">Calibrate from first 2 points</button></div>
+<div class="notice" style="margin-top:10px">V1 still needs a known reference length because a normal photo does not contain real-world scale.</div>
 <div class="result"><div class="small">Current measurement</div><div class="big" id="result">—</div><div class="small" id="decimal">Set calibration and tap two measurement points.</div></div>
 <div class="field"><label>Measurement name</label><input id="measureName" placeholder="e.g. Kitchen shelf width"></div>
 <div class="actions"><button class="primary" id="saveBtn">Save measurement</button></div>
